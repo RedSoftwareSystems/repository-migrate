@@ -12,7 +12,7 @@ from github.Repository import Repository as github_Repository
 
 app = typer.Typer()
 
-DEFAULT_WORKING_DIR : str = 'migration_working_dir'
+DEFAULT_WORKING_DIR : str = '../../migration_working_dir'
 
 
 def bitbucket_cloud(username : str,password:str):
@@ -102,12 +102,8 @@ def process_repo(slug: str, desc: str, private: bool):
     #
     if gh_repo is None:
           gh_repo_create(slug, desc, private)
-    #
-    # elif not gh_is_repo_empty(gh_repo):
-    #     print("Existing repo non empty: https://github.com/%s/%s" % (GH_USER, slug), file=sys.stderr)
-    #     return False
 
-    #bb_clone_repo(slug)
+    bb_clone_repo(slug)
     gh_repo_push(slug)
     return True
 
@@ -166,11 +162,16 @@ def compare_bitbucket_github_organization(bitbucket_organization_name: str,
 def migrate_repositories():
     pass
 
-if __name__ == '__main__':
 
+@app.command("migrate-list-of-repositories")
+def migrate_list_of_repositories():
+    pass
+
+if __name__ == '__main__':
+    WORKING_DIR = os.path.expanduser(DEFAULT_WORKING_DIR)
+    os.path.exists(WORKING_DIR) or os.mkdir(WORKING_DIR, 0o775)
     app()
 
     # Create CWD if needed
-    WORKING_DIR = os.path.expanduser(DEFAULT_WORKING_DIR)
-    os.path.exists(WORKING_DIR) or os.mkdir(WORKING_DIR, 0o775)
+
 
