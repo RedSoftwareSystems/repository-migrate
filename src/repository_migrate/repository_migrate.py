@@ -167,11 +167,17 @@ def migrate_repositories():
 def migrate_list_of_repositories():
     pass
 
-if __name__ == '__main__':
+def main() -> None:
     WORKING_DIR = os.path.expanduser(DEFAULT_WORKING_DIR)
     os.path.exists(WORKING_DIR) or os.mkdir(WORKING_DIR, 0o775)
     app()
 
-    # Create CWD if needed
+
+
+
+if __name__ == '__main__':
+    main()
+
+
 
 
