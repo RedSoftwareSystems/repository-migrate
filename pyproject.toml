@@ -14,6 +14,13 @@ dependencies = [
     "typer>=0.13.0",
 ]
 
+[project.urls]
+"Homepage" = "https://github.com/pypa/sampleproject"
+"Bug Reports" = "https://github.com/RedSoftwareSystems/repository-migrate/issues"
+"Funding" = "https://donate.pypi.org"
+#"Say Thanks!" = "http://saythanks.io/to/example"
+"Source" = "https://github.com/redsoftwaresystems/repository-migrate/"
+
 [project.scripts]
 repository-migrate = "repository_migrate.repository_migrate:app"
 
