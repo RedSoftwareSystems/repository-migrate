@@ -281,21 +281,30 @@ def set_bb_project_as_gh_topic(bitbucket_organization_name: Annotated[str,typer.
             logger.info(f"Setting Topics: {new_topics} for repo: {repo.slug}")
             gh_repo.replace_topics(new_topics)
 
-
-
-
-
-
-
-
-
-
-
-
-
     return None
 
 
+def create_team_from_bb_prj(bitbucket_organization_name, bitbucket_username,
+    bitbucket_password, project):
+
+
+
+    pass
+
+
+@app.command("create-team-from-bb-project")
+def create_team_from_bb_project(bitbucket_organization_name: Annotated[str,typer.Argument(envvar="BITBUCKET_ORGANIZATION",help="Bitbucket Organization")],
+                                bitbucket_username: Annotated[str,typer.Argument(envvar="BITBUCKET_USERNAME",help="Bitbucket UserName")],
+                                bitbucket_password: Annotated[str,typer.Argument(envvar="BITBUCKET_PASSWORD", help="Bitbucket Password")],
+                                github_organization: Annotated[str,typer.Argument(envvar="GITHUB_ORGANIZATION",help="GitHub Organization")],
+                                github_token: Annotated[str,typer.Argument(envvar="GITHUB_TOKEN",help="GitHub Token")] ) -> None:
+    logger.debug("Retrieving list of BitBucket Projects")
+    projects = bb_get_projects(bitbucket_organization_name, bitbucket_username,
+                               bitbucket_password)
+    for project in projects.each():
+        team = create_team_from_bb_prj(bitbucket_organization_name,bitbucket_username,bitbucket_password,project)
+        if team is not None:
+            logger.info(f"Creating Team: {team.name}")
 
 
 @app.command("migrate-repositories-bb-to-gh")
