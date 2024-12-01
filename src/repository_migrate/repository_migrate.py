@@ -1,4 +1,3 @@
-import argparse
 import os
 import sys
 import pathlib
@@ -12,6 +11,8 @@ from github import Github
 from github import BadCredentialsException
 from github import UnknownObjectException
 from loguru import logger
+import re
+
 
 app = typer.Typer()
 
@@ -189,7 +190,9 @@ def compare_bitbucket_github_organization(bitbucket_organization_name: Annotated
             if (match_repos[element].get('bb_url') is None) and (match_repos[element].get('gh_url') is not None):
                 print(element)
     if (not only_bitbucket) & (not only_github):
-        for element in match_repos:
+        #oredered_match_repos = sorted(match_repos, key=lambda repo: repo.get('gh_url'))
+        ordered_match_repos = sorted(match_repos)
+        for element in ordered_match_repos:
             print(f"{element}\t\t{match_repos[element].get('gh_url')}\t\t{match_repos[element].get('bb_url')}")
 
 
@@ -241,6 +244,11 @@ def migrate_repositories(bitbucket_organization_name: str,
         logger.info(f"Starting from a clean state")
 
 
+def bb_get_projects(bitbucket_organization_name: str, bitbucket_username: str,
+    bitbucket_password: str):
+    workspace = bitbucket_cloud(bitbucket_username, bitbucket_password).workspaces.get(
+        bitbucket_organization_name)
+    return workspace.projects
 
 
 @app.command("set-bb-project-as-gh-topic")
@@ -249,6 +257,41 @@ def set_bb_project_as_gh_topic(bitbucket_organization_name: Annotated[str,typer.
                                 bitbucket_password: Annotated[str,typer.Argument(envvar="BITBUCKET_PASSWORD", help="Bitbucket Password")],
                                 github_organization: Annotated[str,typer.Argument(envvar="GITHUB_ORGANIZATION",help="GitHub Organization")],
                                 github_token: Annotated[str,typer.Argument(envvar="GITHUB_TOKEN",help="GitHub Token")] ) -> None:
+
+    logger.debug("Retrieving list of BitBucket Projects")
+    projects = bb_get_projects(bitbucket_organization_name,bitbucket_username,bitbucket_password)
+
+    for project in projects.each():
+        project_name = project.name
+        project_topics = re.split(r'[\s-]+', project_name)
+        project_key = project.key
+        logger.debug(f"{project_name} {project_topics} {project_key} ")
+        for repo in project.repositories.each():
+            logger.debug(f"{project_name}\t{repo.name} \t{repo.slug}")
+            gh_repo = gh_get_repo(repo.slug,github_organization,github_token)
+            gh_repo_topics = gh_repo.get_topics()
+            new_topics = []
+            for topic in project_topics:
+                new_topics.append(topic.lower().replace("_","-"))
+            for topic in gh_repo_topics:
+                new_topics.append(topic.lower().replace("_","-"))
+
+            new_topics.append(project_key.lower().replace("_","-"))
+            new_topics = list(dict.fromkeys(new_topics))
+            logger.info(f"Setting Topics: {new_topics} for repo: {repo.slug}")
+            gh_repo.replace_topics(new_topics)
+
+
+
+
+
+
+
+
+
+
+
+
 
     return None
 
