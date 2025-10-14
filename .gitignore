@@ -161,3 +161,8 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #
 .idea/
+/setting
+/run-output.txt
+/requests/github.http
+/requests/atlassian/http-client.private.env.json
+/requests/atlassian/bitbucket-request.http
